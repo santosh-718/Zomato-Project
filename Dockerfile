@@ -1,15 +1,9 @@
-FROM node:16-slim AS builder
+FROM node:18-alpine as build
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
+COPY package* /
+RUN npm ci --only=production
 COPY . .
-RUN npm run build
-
-# Stage 2: Production
-FROM builder AS final
+FROM node:18-alpine
 WORKDIR /app
-COPY --from=builder /app/build ./build
-COPY package*.json ./
-RUN npm install --production
-EXPOSE 3000
-CMD ["npm", "start"]
+COPY --from=build /app /app
+CMD ["npm","start"]
